@@ -1,5 +1,4 @@
 #include <iostream>
-#include <algorithm>
 
 // Функция сортировки вставками
 void insertionSort(double* elements, int* indices, int size) {
@@ -9,7 +8,7 @@ void insertionSort(double* elements, int* indices, int size) {
         int j = i - 1;
 
         // Сдвигаем элементы, которые больше текущего, вправо
-        while (j >= 0 && elements[j] > currentElement) {
+        while (j >= 0 && (elements[j] > currentElement || (elements[j] == currentElement && indices[j] < currentIndex))) {
             elements[j + 1] = elements[j]; // Сдвигаем элемент
             indices[j + 1] = indices[j]; // Сдвигаем индекс
             --j;
@@ -32,7 +31,7 @@ void shellSort(double* elements, int* indices, int size) {
             int j;
 
             // Сдвиг элементов, чтобы найти правильное место для вставки элемента
-            for (j = i; j >= gap && elements[j - gap] > temp; j -= gap) {
+            for (j = i; j >= gap && (elements[j - gap] > temp || (elements[j - gap] == temp && indices[j - gap] < tempIndex)); j -= gap) {
                 elements[j] = elements[j - gap]; // Сдвигаем элемент
                 indices[j] = indices[j - gap]; // Сдвигаем индекс
             }
@@ -43,6 +42,7 @@ void shellSort(double* elements, int* indices, int size) {
         }
     }
 }
+
 
 int main() {
     int size;
@@ -69,42 +69,43 @@ int main() {
         indices[i] = i;
     }
     */
-    std::cout << "Enter the elements of the array separated by space:\n";
-    for (int i = 0; i < size; ++i) {
-        std::cin >> elements[i]; // Ввод элементов массива
-        indices[i] = i; // Заполнение массива индексов
+    if (size > 0) {
+        std::cout << "Enter the elements of the array separated by space:\n";
+        for (int i = 0; i < size; ++i) {
+            std::cin >> elements[i]; // Ввод элементов массива
+            indices[i] = i; // Заполнение массива индексов
+        }
+        /*
+        Тут можно было использовать функцию 
+        bool compareElements(const Element& a, const Element& b) {
+            return a.value < b.value || (a.value == b.value && a.index < b.index);
+        }
+        и сортировку 
+        std::sort(elements, elements + size, compareElements);
+        , но было принято решение реализовать свои функции сортировки. 
+        По идее можно добавить для случаев, когда размер массива больше лио равен 10^8 поразрядую сортировку (LSD-версия), 
+        так как она работает быстрее в больших массивах, но было принято решение, что данных двух сортировок достаточно.
+        */
+        // Выбор сортировки в зависимости от размера массива
+        if (size < 100000) {
+            insertionSort(elements, indices, size); // Вызов сортировки вставками
+        } else  {
+            shellSort(elements, indices, size); // Вызов сортировки Шелла
+        }
+        /*
+        // Можно вывести отсортированный массив для проверки следующим образом:
+        // Вывод отсортированных элементов массива
+        for (int i = 0; i < size; i++)
+            std::cout << elements[i] << " ";
+        std::cout << "\n";
+        */
+        // Вывод двух наибольших элементов и их индексов
+        std::cout << "Two largest elements of the array and their indices:\n";
+        for (int i = size - 1; i >= std::max(0, size - 2); --i) {
+            std::cout << "Element: " << elements[i] // Вывод элемента
+                    << ", Index: " << indices[i] << std::endl; // Вывод индекса
+        }
     }
-    /*
-    Тут можно было использовать функцию 
-    bool compareElements(const Element& a, const Element& b) {
-        return a.value < b.value || (a.value == b.value && a.index < b.index);
-    }
-    и сортировку 
-    std::sort(elements, elements + size, compareElements);
-    , но было принято решение реализовать свои функции сортировки. 
-    По идее можно добавить для случаев, когда размер массива больше лио равен 10^8 поразрядую сортировку (LSD-версия), 
-    так как она работает быстрее в больших массивах, но было принято решение, что данных двух сортировок достаточно.
-    */
-    // Выбор сортировки в зависимости от размера массива
-    if (size < 100000) {
-        insertionSort(elements, indices, size); // Вызов сортировки вставками
-    } else  {
-        shellSort(elements, indices, size); // Вызов сортировки Шелла
-    }
-    /*
-    // Можно вывести отсортированный массив для проверки следующим образом:
-    // Вывод отсортированных элементов массива
-    for (int i = 0; i < size; i++)
-        std::cout << elements[i] << " ";
-    std::cout << "\n";
-    */
-    // Вывод двух наибольших элементов и их индексов
-    std::cout << "Two largest elements of the array and their indices:\n";
-    for (int i = size - 1; i >= std::max(0, size - 2); --i) {
-        std::cout << "Element: " << elements[i] // Вывод элемента
-                  << ", Index: " << indices[i] << std::endl; // Вывод индекса
-    }
-
     delete[] elements; // Освобождение памяти от массива элементов
     delete[] indices; // Освобождение памяти от массива индексов
 
